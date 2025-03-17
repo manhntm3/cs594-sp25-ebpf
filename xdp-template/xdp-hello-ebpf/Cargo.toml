@@ -1,0 +1,17 @@
+[package]
+name = "xdp-hello-ebpf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+xdp-hello-common = { path = "../xdp-hello-common" }
+aya-ebpf = { workspace = true }
+aya-log-ebpf = { workspace = true }
+network-types = "0.0.7"
+
+[build-dependencies]
+which = { workspace = true }
+
+[[bin]]
+name = "xdp-hello"
+path = "src/main.rs"

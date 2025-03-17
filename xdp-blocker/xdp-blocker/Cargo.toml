@@ -1,8 +1,0 @@
-[package]
-name = "xdp-blocker"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-aya = { version = "0.13.1", features = ["async_tokio"] }
-anyhow = "1.0"
