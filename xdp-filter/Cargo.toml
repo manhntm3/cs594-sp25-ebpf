@@ -1,10 +1,10 @@
 [package]
-name = "xdp-hello"
+name = "xdp-filter"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-xdp-hello-common = { path = "../xdp-hello-common", features = ["user"] }
+xdp-filter-common = { path = "../xdp-filter-common", features = ["user"] }
 
 anyhow = { workspace = true, default-features = true }
 aya = { workspace = true }
@@ -30,8 +30,8 @@ aya-build = { workspace = true }
 # Finally note that *any* usage of `artifact = ...` in *any* Cargo.toml in the workspace breaks
 # workflows with stable cargo; stable cargo outright refuses to load manifests that use unstable
 # features.
-xdp-hello-ebpf = { path = "../xdp-hello-ebpf" }
+xdp-filter-ebpf = { path = "../xdp-filter-ebpf" }
 
 [[bin]]
-name = "xdp-hello"
+name = "xdp-filter"
 path = "src/main.rs"

@@ -821,7 +821,7 @@ name = "xdp-dynamic"
 version = "0.1.0"
 
 [[package]]
-name = "xdp-hello"
+name = "xdp-filter"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -833,24 +833,24 @@ dependencies = [
  "libc",
  "log",
  "tokio",
- "xdp-hello-common",
- "xdp-hello-ebpf",
+ "xdp-filter-common",
+ "xdp-filter-ebpf",
 ]
 
 [[package]]
-name = "xdp-hello-common"
+name = "xdp-filter-common"
 version = "0.1.0"
 dependencies = [
  "aya",
 ]
 
 [[package]]
-name = "xdp-hello-ebpf"
+name = "xdp-filter-ebpf"
 version = "0.1.0"
 dependencies = [
  "aya-ebpf",
  "aya-log-ebpf",
  "network-types",
  "which",
- "xdp-hello-common",
+ "xdp-filter-common",
 ]

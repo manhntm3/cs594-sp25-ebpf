@@ -39,7 +39,7 @@ async fn main() -> Result<(), anyhow::Error> {
     // reach for `Bpf::load_file` instead.
     let mut ebpf = aya::Ebpf::load(aya::include_bytes_aligned!(concat!(
         env!("OUT_DIR"),
-        "/xdp-hello"
+        "/xdp-filter"
     )))?;
     if let Err(e) = EbpfLogger::init(&mut ebpf) {
         // This can happen if you remove all log statements from your eBPF program.
@@ -56,7 +56,7 @@ async fn main() -> Result<(), anyhow::Error> {
         HashMap::try_from(ebpf.map_mut("BLOCKLIST").unwrap())?;
 
     // println!("Reading blocklist.txt");
-    // let file = std::fs::File::open("xdp-hello/blocklist.txt")?;
+    // let file = std::fs::File::open("xdp-filter/blocklist.txt")?;
     // let reader = std::io::BufReader::new(file);
     // for line in reader.lines() {
     //     let line = line?;

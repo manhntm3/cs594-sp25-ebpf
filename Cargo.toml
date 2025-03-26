@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members = [ "xdp-dynamic","xdp-hello", "xdp-hello-common", "xdp-hello-ebpf"]
-default-members = ["xdp-hello", "xdp-hello-common"]
+members = [ "xdp-dynamic","xdp-filter", "xdp-filter-common", "xdp-filter-ebpf"]
+default-members = ["xdp-filter", "xdp-filter-common"]
 
 [workspace.dependencies]
 aya = { version = "0.13.1", default-features = false }
@@ -21,6 +21,6 @@ log = { version = "0.4.22", default-features = false }
 tokio = { version = "1.40.0", default-features = false }
 which = { version = "6.0.0", default-features = false }
 
-[profile.release.package.xdp-hello-ebpf]
+[profile.release.package.xdp-filter-ebpf]
 debug = 2
 codegen-units = 1
