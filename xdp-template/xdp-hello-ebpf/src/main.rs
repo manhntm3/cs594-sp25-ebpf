@@ -20,7 +20,7 @@ use network_types::{
 
 #[map]
 static BLOCKLIST: HashMap<u32, u32> = 
-    HashMap::with_max_entries(1024, 0);
+    HashMap::with_max_entries(177402, 0);
 
 #[xdp]
 pub fn xdp_hello(ctx: XdpContext) -> u32 {

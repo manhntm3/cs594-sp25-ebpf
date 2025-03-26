@@ -8,6 +8,7 @@ use clap::Parser;
 use log::{info, warn};
 use std::net::Ipv4Addr;
 use tokio::signal;
+// use std::io::BufRead;
 
 #[derive(Debug, Parser)]
 struct Opt {
@@ -54,8 +55,29 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut blocklist: HashMap<_, u32, u32> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST").unwrap())?;
 
-    let block_addr: u32 = Ipv4Addr::new(1, 1, 1, 1).into();
+    // println!("Reading blocklist.txt");
+    // let file = std::fs::File::open("xdp-hello/blocklist.txt")?;
+    // let reader = std::io::BufReader::new(file);
+    // for line in reader.lines() {
+    //     let line = line?;
+    //     let ip: Ipv4Addr = line.parse()?;
+    //     let ip = u32::from(ip);
+    //     blocklist.insert(ip, 0, 0)?;
+    // }
 
+    let block_addr: u32 = Ipv4Addr::new(34,201,207,153).into();
+    blocklist.insert(block_addr, 0, 0)?;
+
+    let block_addr: u32 = Ipv4Addr::new(3,214,199,225).into();
+    blocklist.insert(block_addr, 0, 0)?;
+
+    let block_addr: u32 = Ipv4Addr::new(54,204,180,25).into();
+    blocklist.insert(block_addr, 0, 0)?;
+
+    let block_addr: u32 = Ipv4Addr::new(3,211,174,179).into();
+    blocklist.insert(block_addr, 0, 0)?;
+
+    let block_addr: u32 = Ipv4Addr::new(34,193,184,57).into();
     blocklist.insert(block_addr, 0, 0)?;
 
     let ctrl_c = signal::ctrl_c();
