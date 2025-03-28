@@ -9,6 +9,18 @@ EBPF network filtering
 
 # xdp-filter
 
+Run command:
+```
+RUST_LOG=info cargo run --config 'target."cfg(all())".runner="sudo -E"'
+```
+
+Dynamically add a website:
+
+```
+RUST_LOG=info cargo run -p xdp-filter-dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com
+```
+
+
 ## Prerequisites
 
 1. stable rust toolchains: `rustup toolchain install stable`
