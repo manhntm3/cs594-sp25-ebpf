@@ -69,7 +69,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let block_addr: u32 = Ipv4Addr::new(1,193,184,57).into();
     blocklist.insert(block_addr, 0, 0)?;
     
-    blocklist.pin("/sys/fs/bpf/my_blocklist")?;
+    blocklist.pin("/sys/fs/bpf/blocklist")?;
 
     let ctrl_c = signal::ctrl_c();
     info!("Waiting for Ctrl-C...");

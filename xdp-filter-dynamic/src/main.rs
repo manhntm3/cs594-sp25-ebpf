@@ -19,47 +19,55 @@ async fn main() -> Result<()> {
     env_logger::init();
     let args = Args::parse();
     // Step 1: Resolve the domain to IP
-    let ip = resolve_domain_to_ipv4(&args.domain)
-        .await
-        .context("Failed to resolve domain to IPv4")?;
+    let ips = resolve_all_ipv4(&args.domain)
+    .await
+    .with_context(|| format!("Failed to resolve IPs for domain: {}", args.domain))?;
 
-    println!("Resolved {} to {}", args.domain, ip);
+    println!("IPv4 addresses for {}:", args.domain);
 
     // Load pinned map data
-    let pinned_data = MapData::from_pin("/sys/fs/bpf/my_blocklist")?;
+    let pinned_data = MapData::from_pin("/sys/fs/bpf/blocklist")?;
     let pinned_map = Map::HashMap(pinned_data);
 
     let mut blocklist: HashMap<_, u32, u32> = pinned_map.try_into()?;
 
-    let ip_block = u32::from(ip);
-    blocklist.insert(ip_block, 0, 0)?;
+    for ip in ips {
+        println!("{}", ip);
+        let ip_block = u32::from(ip);
+        blocklist.insert(ip_block, 0, 0)?;
 
-    println!("✅ Added {ip} to blocked IPs.");
+        println!("✅ Added {ip} to blocked IPs.");
+    }
 
     Ok(())
-    
 }
 
-async fn resolve_domain_to_ipv4(domain: &str) -> Result<Ipv4Addr> {
-    // Create a DNS resolver from the system config
+async fn resolve_all_ipv4(domain: &str) -> Result<Vec<Ipv4Addr>> {
+    // Create a DNS resolver using system configuration
     let resolver = TokioAsyncResolver::tokio_from_system_conf()
         .context("Failed to create DNS resolver")?;
 
-    // Lookup the IP addresses associated with the domain
+    // Perform DNS lookup
     let response = resolver
         .lookup_ip(domain)
         .await
-        .with_context(|| format!("Failed to look up IP for {domain}"))?;
+        .with_context(|| format!("DNS lookup failed for {}", domain))?;
 
-    // Pick the first IPv4 address found
-    let ip = response
+    // Collect all IPv4 addresses
+    let ipv4s: Vec<Ipv4Addr> = response
         .iter()
-        .find(|ip| ip.is_ipv4())
-        .ok_or_else(|| anyhow!("No IPv4 address found for {domain}"))?;
+        .filter_map(|ip| {
+            if let std::net::IpAddr::V4(v4) = ip {
+                Some(v4)
+            } else {
+                None
+            }
+        })
+        .collect();
 
-    // Match to extract the Ipv4Addr
-    match ip {
-        IpAddr::V4(ipv4) => Ok(ipv4),
-        IpAddr::V6(_) => bail!("No IPv4 address found for {domain}"),
+    if ipv4s.is_empty() {
+        return Err(anyhow!("No IPv4 addresses found for {}", domain));
     }
+
+    Ok(ipv4s)
 }
