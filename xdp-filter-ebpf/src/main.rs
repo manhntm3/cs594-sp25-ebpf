@@ -23,8 +23,8 @@ static BLOCKLIST: HashMap<u32, u32> =
     HashMap::with_max_entries(177402, 0);
 
 #[xdp]
-pub fn xdp_hello(ctx: XdpContext) -> u32 {
-    match try_xdp_hello(ctx) {
+pub fn xdp_filter(ctx: XdpContext) -> u32 {
+    match try_xdp_filter(ctx) {
         Ok(ret) => ret,
         Err(_) => xdp_action::XDP_ABORTED,
     }
@@ -48,7 +48,7 @@ fn block_ip(ip: u32) -> bool{
     unsafe { BLOCKLIST.get(&ip).is_some() }
 }
 
-fn try_xdp_hello(ctx: XdpContext) -> Result<u32, ()> {
+fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
     let ethhdr: *const EthHdr = ptr_at(&ctx, 0)?;
     match unsafe { (*ethhdr).ether_type } {
         EtherType::Ipv4 => {}
@@ -72,7 +72,7 @@ fn try_xdp_hello(ctx: XdpContext) -> Result<u32, ()> {
         _ => return Err(()),
     };
 
-    let action = if block_ip(source_addr) {
+    let action: u32 = if block_ip(source_addr) {
         xdp_action::XDP_DROP
     } else {
         xdp_action::XDP_PASS

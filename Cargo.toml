@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "xdp-dynamic","xdp-filter", "xdp-filter-common", "xdp-filter-ebpf"]
+members = ["xdp-filter", "xdp-filter-common", "xdp-filter-dynamic", "xdp-filter-ebpf"]
 default-members = ["xdp-filter", "xdp-filter-common"]
 
 [workspace.dependencies]

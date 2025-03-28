@@ -37,6 +37,7 @@ async fn main() -> Result<(), anyhow::Error> {
     // runtime. This approach is recommended for most real-world use cases. If you would
     // like to specify the eBPF program at runtime rather than at compile-time, you can
     // reach for `Bpf::load_file` instead.
+    info!(env!("OUT_DIR"));
     let mut ebpf = aya::Ebpf::load(aya::include_bytes_aligned!(concat!(
         env!("OUT_DIR"),
         "/xdp-filter"
@@ -47,7 +48,7 @@ async fn main() -> Result<(), anyhow::Error> {
     }
     let Opt { iface } = opt;
     let program: &mut Xdp = 
-        ebpf.program_mut("xdp_hello").unwrap().try_into()?;
+        ebpf.program_mut("xdp_filter").unwrap().try_into()?;
     program.load()?;
     program.attach(&iface, XdpFlags::default())
         .context("failed to attach the XDP program with default flags - try changing XdpFlags::default() to XdpFlags::SKB_MODE")?;
@@ -65,20 +66,10 @@ async fn main() -> Result<(), anyhow::Error> {
     //     blocklist.insert(ip, 0, 0)?;
     // }
 
-    let block_addr: u32 = Ipv4Addr::new(34,201,207,153).into();
+    let block_addr: u32 = Ipv4Addr::new(1,193,184,57).into();
     blocklist.insert(block_addr, 0, 0)?;
-
-    let block_addr: u32 = Ipv4Addr::new(3,214,199,225).into();
-    blocklist.insert(block_addr, 0, 0)?;
-
-    let block_addr: u32 = Ipv4Addr::new(54,204,180,25).into();
-    blocklist.insert(block_addr, 0, 0)?;
-
-    let block_addr: u32 = Ipv4Addr::new(3,211,174,179).into();
-    blocklist.insert(block_addr, 0, 0)?;
-
-    let block_addr: u32 = Ipv4Addr::new(34,193,184,57).into();
-    blocklist.insert(block_addr, 0, 0)?;
+    
+    blocklist.pin("/sys/fs/bpf/my_blocklist")?;
 
     let ctrl_c = signal::ctrl_c();
     info!("Waiting for Ctrl-C...");
