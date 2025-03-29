@@ -6,7 +6,7 @@ use aya::{
 use aya_log::EbpfLogger;
 use clap::Parser;
 use log::{info, warn};
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, Ipv6Addr};
 use tokio::signal;
 // use std::io::BufRead;
 
@@ -42,19 +42,46 @@ async fn main() -> Result<(), anyhow::Error> {
         env!("OUT_DIR"),
         "/xdp-filter"
     )))?;
-    if let Err(e) = EbpfLogger::init(&mut ebpf) {
+
+    let ebpf_ref = &mut ebpf;
+
+    if let Err(e) = EbpfLogger::init(ebpf_ref) {
         // This can happen if you remove all log statements from your eBPF program.
         warn!("failed to initialize eBPF logger: {}", e);
     }
     let Opt { iface } = opt;
     let program: &mut Xdp = 
-        ebpf.program_mut("xdp_filter").unwrap().try_into()?;
+    ebpf_ref.program_mut("xdp_filter").unwrap().try_into()?;
     program.load()?;
     program.attach(&iface, XdpFlags::default())
         .context("failed to attach the XDP program with default flags - try changing XdpFlags::default() to XdpFlags::SKB_MODE")?;
 
-    let mut blocklist: HashMap<_, u32, u32> =
-        HashMap::try_from(ebpf.map_mut("BLOCKLIST").unwrap())?;
+    let mut v4_map: HashMap<_, u32, u32> = HashMap::try_from(ebpf.map_mut("BLOCKLIST_V4").unwrap())?;
+
+    // let v4_map = HashMap::<_, u32, u32>::try_from(ebpf_ref.map_mut("BLOCKLIST_V4").unwrap())?;
+
+    let block_addr: u32 = Ipv4Addr::new(54,237,226,164).into();
+    v4_map.insert(block_addr, 0, 0)?;
+    let block_addr: u32 = Ipv4Addr::new(52,3,144,142).into();
+    v4_map.insert(block_addr, 0, 0)?;
+    let block_addr: u32 = Ipv4Addr::new(3,230,129,93).into();
+    v4_map.insert(block_addr, 0, 0)?;
+
+    v4_map.pin("/sys/fs/bpf/blocklist_v4")?;
+
+
+    let mut v6_map: HashMap<_, [u8; 16], [u8; 16]> = HashMap::try_from(ebpf.map_mut("BLOCKLIST_V6").unwrap())?;
+
+    // let v6_map = HashMap::<_, [u8; 16], [u8; 16]>::try_from(ebpf_ref.map_mut("BLOCKLIST_V6").unwrap())?;
+    
+    let block_addr: [u8; 16] = Ipv6Addr::new(0x2600,0x1f18,0x631e,0x2f85,0x93a9,0xf7b0,0xd18,0x89a7).octets();
+    v6_map.insert(block_addr, [0; 16], 0)?;
+    let block_addr:  [u8; 16]= Ipv6Addr::new(0x2600,0x1f18,0x631e,0x2f84,0x4f7a,0x4092,0xe2e9,0xc617).octets();
+    v6_map.insert(block_addr, [0; 16], 0)?;
+    let block_addr:  [u8; 16]= Ipv6Addr::new(0x2600,0x1f18,0x631e,0x2f83,0x49ee,0xbeaa,0x2dfd,0xae8f).octets();
+    v6_map.insert(block_addr, [0; 16], 0)?;
+    
+    v6_map.pin("/sys/fs/bpf/blocklist_v6")?;
 
     // println!("Reading blocklist.txt");
     // let file = std::fs::File::open("xdp-filter/blocklist.txt")?;
@@ -66,10 +93,10 @@ async fn main() -> Result<(), anyhow::Error> {
     //     blocklist.insert(ip, 0, 0)?;
     // }
 
-    let block_addr: u32 = Ipv4Addr::new(1,193,184,57).into();
-    blocklist.insert(block_addr, 0, 0)?;
+
+
     
-    blocklist.pin("/sys/fs/bpf/blocklist")?;
+    // blocklist.pin("/sys/fs/bpf/blocklist")?;
 
     let ctrl_c = signal::ctrl_c();
     info!("Waiting for Ctrl-C...");
