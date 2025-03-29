@@ -103,5 +103,12 @@ async fn main() -> Result<(), anyhow::Error> {
     ctrl_c.await?;
     info!("Exiting...");
 
+    if let Err(e) = std::fs::remove_file("/sys/fs/bpf/blocklist_v4") {
+        warn!("Failed to remove blocklist_v4: {}", e);
+    }
+    if let Err(e) = std::fs::remove_file("/sys/fs/bpf/blocklist_v6") {
+        warn!("Failed to remove blocklist_v6: {}", e);
+    }    
+
     Ok(())
 }
