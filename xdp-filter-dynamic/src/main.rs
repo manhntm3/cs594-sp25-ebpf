@@ -19,7 +19,7 @@ async fn main() -> Result<()> {
     env_logger::init();
     let args = Args::parse();
 
-    let (ipv4, ipv6) = resolve_all_ipv4(&args.domain).await;
+    let (ipv4, ipv6) = resolve_all_ipv4(&args.domain).await?;
     // .with_context(|| format!("Failed to resolve IPs for domain: {}", args.domain))?;
 
     // println!("IPv4 addresses for {}:", args.domain);
@@ -64,16 +64,16 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn resolve_all_ipv4(domain: &str) -> (Option<Vec<Ipv4Addr>>, Option<Vec<Ipv6Addr>>) {
+async fn resolve_all_ipv4(domain: &str) -> Result<(Option<Vec<Ipv4Addr>>, Option<Vec<Ipv6Addr>>)> {
     // Create a DNS resolver using system configuration
     let resolver = TokioAsyncResolver::tokio_from_system_conf()
-        .context("Failed to create DNS resolver").unwrap();
+        .context("Failed to create DNS resolver")?;
 
     // Perform DNS lookup
     let response = resolver
         .lookup_ip(domain)
         .await
-        .with_context(|| format!("DNS lookup failed for {}", domain)).unwrap();
+        .with_context(|| format!("DNS lookup failed for {}", domain))?;
 
     // Collect all IPv4 addresses
     let ipv4s: Vec<Ipv4Addr> = response
@@ -110,5 +110,5 @@ async fn resolve_all_ipv4(domain: &str) -> (Option<Vec<Ipv4Addr>>, Option<Vec<Ip
         ret_v6 = Some(ipv6s);
     }
 
-    (ret_v4, ret_v6)
+    Ok((ret_v4, ret_v6))
 }
