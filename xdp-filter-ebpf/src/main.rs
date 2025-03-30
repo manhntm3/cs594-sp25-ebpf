@@ -56,9 +56,9 @@ fn block_ipv6(ip: [u8; 16]) -> bool {
 
 fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
     let ethhdr: *const EthHdr = ptr_at(&ctx, 0)?;
-    let mut action: u32 = 0;
+    let action: u32;
     // let log_ip: [u8; 16];  // For logging (IPv6-sized buffer)
-    let mut source_port: u16 = 0;
+    let source_port: u16;
 
     match unsafe { (*ethhdr).ether_type } {
         EtherType::Ipv4 => {
@@ -66,7 +66,7 @@ fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
             let source_addr = u32::from_be(unsafe { (*ipv4hdr).src_addr });
 
              // Extract source port (TCP/UDP)
-            let source_port = match unsafe { (*ipv4hdr).proto } {
+            source_port = match unsafe { (*ipv4hdr).proto } {
                 IpProto::Tcp => {
                     let tcphdr: *const TcpHdr = 
                         ptr_at(&ctx, EthHdr::LEN + Ipv4Hdr::LEN)?;
@@ -81,21 +81,15 @@ fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
             };
 
 
-            let action: u32 = if block_ipv4(source_addr) {
+            action = if block_ipv4(source_addr) {
                 xdp_action::XDP_DROP
             } else {
                 xdp_action::XDP_PASS
             };
-
-            info!(&ctx, "SRC IPv4: {:i}, SRC PORT: {}, ACTION {}", source_addr, source_port, action);
-            // Convert IPv4 to [u8; 16] for logging (zero-pad)
-            // log_ip = {
-            //     let bytes = source_addr.to_be_bytes();
-            //     [
-            //         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff,
-            //         bytes[0], bytes[1], bytes[2], bytes[3]
-            //     ]
-            // };
+            if source_addr != u32::from_be_bytes([172, 16, 172, 1]) {
+                info!(&ctx, "SRC IPv4: {:i}, SRC PORT: {}, ACTION {}", source_addr, source_port, action);
+                
+            }
 
         }
         EtherType::Ipv6 => {
@@ -118,7 +112,7 @@ fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
             };
 
 
-            let action: u32 = if block_ipv6(source_addr) {
+            action = if block_ipv6(source_addr) {
                 xdp_action::XDP_DROP
             } else {
                 xdp_action::XDP_PASS

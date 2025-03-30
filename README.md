@@ -20,6 +20,12 @@ Dynamically add a website:
 RUST_LOG=info cargo run -p xdp-filter-dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com
 ```
 
+Dynamically remove a website:
+
+```
+RUST_LOG=info cargo run -p xdp-filter-dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com --remove
+```
+
 ## Prerequisites
 
 1. stable rust toolchains: `rustup toolchain install stable`

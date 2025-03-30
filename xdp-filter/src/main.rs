@@ -93,11 +93,6 @@ async fn main() -> Result<(), anyhow::Error> {
     //     blocklist.insert(ip, 0, 0)?;
     // }
 
-
-
-    
-    // blocklist.pin("/sys/fs/bpf/blocklist")?;
-
     let ctrl_c = signal::ctrl_c();
     info!("Waiting for Ctrl-C...");
     ctrl_c.await?;

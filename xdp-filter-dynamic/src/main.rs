@@ -1,7 +1,7 @@
-use std::io::{self, BufRead};
-use std::{net::{IpAddr, Ipv4Addr, Ipv6Addr}, str::FromStr};
 
-use anyhow::{anyhow, bail, Context, Result};
+use std::net::{Ipv4Addr, Ipv6Addr};
+
+use anyhow::{Context, Result};
 use aya::{maps::Map, maps::HashMap, maps::MapData};
 use clap::Parser;
 use trust_dns_resolver::TokioAsyncResolver;
@@ -12,6 +12,10 @@ use std::convert::TryInto;
 struct Args {
     /// Domain to resolve and block
     domain: String,
+
+    /// If set, remove the domain instead of adding it
+    #[arg(long)]
+    remove: bool,
 }
 
 #[tokio::main]
@@ -19,27 +23,33 @@ async fn main() -> Result<()> {
     env_logger::init();
     let args = Args::parse();
 
-    let (ipv4, ipv6) = resolve_all_ipv4(&args.domain).await?;
-    // .with_context(|| format!("Failed to resolve IPs for domain: {}", args.domain))?;
+    let (ipv4, ipv6) = resolve_all_ips(&args.domain).await?;
 
-    // println!("IPv4 addresses for {}:", args.domain);
+    // println!("IPs addresses for {}:", args.domain);
 
     // Load pinned map data
     let v4_map = Map::HashMap(MapData::from_pin("/sys/fs/bpf/blocklist_v4").unwrap());
     let v6_map = Map::HashMap(MapData::from_pin("/sys/fs/bpf/blocklist_v6").unwrap());
 
-
     let mut blocklist_v4: HashMap<_, u32, u32> = v4_map.try_into()?;
 
-        
     match ipv4 {
         Some(ips) =>{
             for ip in ips {
                 println!("{}", ip);
                 let ip_block = u32::from(ip);
-                blocklist_v4.insert(ip_block, 0, 0)?;
+
+                if args.remove {
+                    if let Err(_e) = blocklist_v4.remove(&ip_block) {
+                        println!("Failed to remove {ip} from blocked IPs.");
+                    } else {
+                        println!("✅ Removed {ip} from blocked IPs.");
+                    }
+                } else {
+                    blocklist_v4.insert(ip_block, 0, 0)?;
+                    println!("✅ Added {ip} to blocked IPs.");
+                }
         
-                println!("✅ Added {ip} to blocked IPs.");
             }
         },
         None => println!("No IPv4 addresses"),
@@ -52,19 +62,26 @@ async fn main() -> Result<()> {
             for ip in ips {
                 println!("{}", ip);
                 let ip_block = ip.octets();
-                blocklist_v6.insert(ip_block, [0; 16], 0)?;
-        
-                println!("✅ Added {ip} to blocked IPs.");
+                if args.remove {
+                    if let Err(_e) = blocklist_v6.remove(&ip_block) {
+                        println!("Failed to remove {ip} from blocked IPs.");
+                    } else {
+                        println!("✅ Removed {ip} from blocked IPs.");
+                    }
+                } else {
+                    println!("✅ Added {ip} to blocked IPs.");
+                    blocklist_v6.insert(ip_block, [0; 16], 0)?;
+                }
             }
         },
-        None => println!("No IPv4 addresses"),
+        None => println!("No IPv6 addresses"),
     }
 
 
     Ok(())
 }
 
-async fn resolve_all_ipv4(domain: &str) -> Result<(Option<Vec<Ipv4Addr>>, Option<Vec<Ipv6Addr>>)> {
+async fn resolve_all_ips(domain: &str) -> Result<(Option<Vec<Ipv4Addr>>, Option<Vec<Ipv6Addr>>)> {
     // Create a DNS resolver using system configuration
     let resolver = TokioAsyncResolver::tokio_from_system_conf()
         .context("Failed to create DNS resolver")?;
