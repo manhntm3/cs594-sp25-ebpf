@@ -11,7 +11,12 @@ EBPF network filtering
 
 Run command:
 ```
-RUST_LOG=info cargo run --config 'target."cfg(all())".runner="sudo -E"'
+RUST_LOG=info cargo run --config 'target."cfg(all())".runner="sudo -E"' (this assumes eth0 interface)
+```
+or pass in the interface (wlp2s0) as:
+```
+RUST_LOG=info cargo run --config 'target."cfg(all())".runner="sudo -E"' -- \
+  --iface wlp2s0
 ```
 
 Dynamically add a website:
