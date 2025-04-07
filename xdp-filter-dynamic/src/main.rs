@@ -1,14 +1,18 @@
-
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::{
+    convert::TryInto,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
 use anyhow::{Context, Result};
-use aya::{maps::Map, maps::HashMap, maps::MapData};
+use aya::maps::{HashMap, Map, MapData};
 use clap::Parser;
 use trust_dns_resolver::TokioAsyncResolver;
-use std::convert::TryInto;
 
 #[derive(Parser, Debug)]
-#[command(name = "xdp-filter-dynamic", about = "Dynamically add resolved IP to eBPF filter map")]
+#[command(
+    name = "xdp-filter-dynamic",
+    about = "Dynamically add resolved IP to eBPF filter map"
+)]
 struct Args {
     /// Domain to resolve and block
     domain: String,
@@ -34,7 +38,7 @@ async fn main() -> Result<()> {
     let mut blocklist_v4: HashMap<_, u32, u32> = v4_map.try_into()?;
 
     match ipv4 {
-        Some(ips) =>{
+        Some(ips) => {
             for ip in ips {
                 println!("{}", ip);
                 let ip_block = u32::from(ip);
@@ -49,16 +53,15 @@ async fn main() -> Result<()> {
                     blocklist_v4.insert(ip_block, 0, 0)?;
                     println!("✅ Added {ip} to blocked IPs.");
                 }
-        
             }
-        },
+        }
         None => println!("No IPv4 addresses"),
     }
 
     let mut blocklist_v6: HashMap<_, [u8; 16], [u8; 16]> = v6_map.try_into()?;
 
     match ipv6 {
-        Some(ips) =>{
+        Some(ips) => {
             for ip in ips {
                 println!("{}", ip);
                 let ip_block = ip.octets();
@@ -73,18 +76,17 @@ async fn main() -> Result<()> {
                     blocklist_v6.insert(ip_block, [0; 16], 0)?;
                 }
             }
-        },
+        }
         None => println!("No IPv6 addresses"),
     }
-
 
     Ok(())
 }
 
 async fn resolve_all_ips(domain: &str) -> Result<(Option<Vec<Ipv4Addr>>, Option<Vec<Ipv6Addr>>)> {
     // Create a DNS resolver using system configuration
-    let resolver = TokioAsyncResolver::tokio_from_system_conf()
-        .context("Failed to create DNS resolver")?;
+    let resolver =
+        TokioAsyncResolver::tokio_from_system_conf().context("Failed to create DNS resolver")?;
 
     // Perform DNS lookup
     let response = resolver
