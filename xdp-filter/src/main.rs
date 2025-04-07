@@ -44,15 +44,10 @@ async fn main() -> Result<(), anyhow::Error> {
     xdp_program.attach(&iface, XdpFlags::default())
         .context("failed to attach the XDP program with default flags - try changing XdpFlags::default() to XdpFlags::SKB_MODE")?;
 
-    let tc_program: &mut SchedClassifier = ebpf_ref
-        .program_mut("tc_egress")
-        .unwrap()
-        .try_into()?;
+    let tc_program: &mut SchedClassifier = ebpf_ref.program_mut("tc_egress").unwrap().try_into()?;
     tc_program.load()?;
-    tc_program.attach(
-        &iface,
-        TcAttachType::Egress
-    )?;    
+    tc_program.attach(&iface, TcAttachType::Egress)?;
+
 
     let mut v4_map: HashMap<_, u32, u32> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST_V4").unwrap())?;
