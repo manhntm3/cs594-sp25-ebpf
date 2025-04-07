@@ -6,9 +6,16 @@ fn main() -> anyhow::Result<()> {
         .no_deps()
         .exec()
         .context("MetadataCommand::exec")?;
-    let ebpf_package = packages
+    let ebpf_packages: Vec<_> = packages
         .into_iter()
-        .find(|cargo_metadata::Package { name, .. }| name == "xdp-filter-ebpf" || name == "tc-filter-ebpf")
-        .ok_or_else(|| anyhow!("xdp-filter-ebpf package not found"))?;
-    aya_build::build_ebpf([ebpf_package])
+        .filter(|cargo_metadata::Package { name, .. }| {
+            name == "xdp-filter-ebpf" || name == "tcp-monitor-ebpf"
+        })
+        .collect();
+
+    if ebpf_packages.is_empty() {
+        return Err(anyhow!("No eBPF packages found"));
+    }
+
+    aya_build::build_ebpf(ebpf_packages)
 }
