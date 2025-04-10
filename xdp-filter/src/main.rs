@@ -22,18 +22,12 @@ async fn main() -> Result<(), anyhow::Error> {
 
     env_logger::init();
 
-
     // This will include the eBPF object file as raw bytes at compile-time and load it at runtime.
     // `Bpf::load_file` can be also used to load program at runtime.
     info!(env!("OUT_DIR"));
     let mut ebpf = aya::Ebpf::load(aya::include_bytes_aligned!(concat!(
         env!("OUT_DIR"),
         "/xdp-filter"
-    )))?;
-
-    let mut ebpf_egress = aya::Ebpf::load(aya::include_bytes_aligned!(concat!(
-        env!("OUT_DIR"),
-        "/tc-filter"
     )))?;
 
     let ebpf_ref = &mut ebpf;
@@ -49,18 +43,17 @@ async fn main() -> Result<(), anyhow::Error> {
     xdp_program.attach(&iface, XdpFlags::default())
         .context("failed to attach the XDP program with default flags - try changing XdpFlags::default() to XdpFlags::SKB_MODE")?;
 
-    let ebpf_ref = &mut ebpf_egress;
+    let tc_program: &mut SchedClassifier = ebpf_ref
+    .program_mut("tc_egress")
+    .unwrap()
+    .try_into()?;
 
-    if let Err(e) = EbpfLogger::init(ebpf_ref) {
-        // This can happen if you remove all log statements from your eBPF program.
-        warn!("failed to initialize eBPF logger: {}", e);
-    }
-
-    let tc_program: &mut SchedClassifier = ebpf_ref.program_mut("tc_egress").unwrap().try_into()?;
     tc_program.load()?;
-    tc_program.attach(&iface, TcAttachType::Egress)?;
-
-
+    tc_program.attach(
+        &iface,
+        TcAttachType::Egress
+    )?;    
+    
     let mut v4_map: HashMap<_, u32, u32> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST_V4").unwrap())?;
 

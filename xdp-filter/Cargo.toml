@@ -31,7 +31,6 @@ aya-build = { workspace = true }
 # workflows with stable cargo; stable cargo outright refuses to load manifests that use unstable
 # features.
 xdp-filter-ebpf = { path = "../xdp-filter-ebpf" }
-tc-filter-ebpf = { path = "../tc-filter-ebpf" }
 
 [[bin]]
 name = "xdp-filter"

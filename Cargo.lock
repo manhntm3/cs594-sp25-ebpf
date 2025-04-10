@@ -1077,17 +1077,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tc-filter-ebpf"
-version = "0.1.0"
-dependencies = [
- "aya-ebpf",
- "aya-log-ebpf",
- "network-types",
- "which",
- "xdp-filter-common",
-]
-
-[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1538,7 +1527,6 @@ dependencies = [
  "env_logger",
  "libc",
  "log",
- "tc-filter-ebpf",
  "tokio",
  "xdp-filter-common",
  "xdp-filter-ebpf",

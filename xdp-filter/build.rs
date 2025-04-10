@@ -9,7 +9,7 @@ fn main() -> anyhow::Result<()> {
     let ebpf_packages: Vec<_> = packages
         .into_iter()
         .filter(|cargo_metadata::Package { name, .. }| {
-            name == "xdp-filter-ebpf" || name == "tc-filter-ebpf"
+            name == "xdp-filter-ebpf"
         })
         .collect();
 
