@@ -14,7 +14,7 @@ use network_types::{
     icmp::IcmpHdr,
 };
 
-use crate::maps::{block_ipv4, block_ipv6};
+use crate::maps::{block_ipv4, block_ipv6, check_rate_limit_v4, check_rate_limit_v6};
 
 #[xdp]
 pub fn xdp_filter(ctx: XdpContext) -> u32 {
@@ -77,6 +77,7 @@ fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
                 );
                 xdp_action::XDP_DROP
             } else {
+                check_rate_limit_v4(&ctx, &source_addr);
                 info!(
                     &ctx,
                     "SRC IPv4: {:i}, SRC PORT: {}, PACKET ALLOWED", source_addr, source_port
@@ -117,6 +118,7 @@ fn try_xdp_filter(ctx: XdpContext) -> Result<u32, ()> {
                 );
                 xdp_action::XDP_DROP
             } else {
+                check_rate_limit_v6(&ctx, &source_addr);
                 info!(
                     &ctx,
                     "SRC IPv6: {:i}, SRC PORT: {}, PACKET ALLOWED", source_addr, source_port
