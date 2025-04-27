@@ -4,7 +4,7 @@ use aya_ebpf::programs::XdpContext;
 use aya_log_ebpf::info;
 use aya_ebpf::helpers::bpf_ktime_get_ns;
 
-const THERSHOLD: u32 = 250;
+const THERSHOLD: u32 = 2500;
 const WINDOW: u64 = 1000000000;
 
 

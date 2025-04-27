@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["ebpf-loader", "common", "dynamic", "ebpf-filter"]
-default-members = ["ebpf-loader", "common"]
+members = ["ebpf-loader", "dynamic", "ebpf-filter"]
+default-members = ["ebpf-loader"]
 
 [workspace.dependencies]
 aya = { version = "0.13.1", default-features = false }

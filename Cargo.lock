@@ -299,14 +299,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
-name = "common"
-version = "0.1.0"
-dependencies = [
- "aya",
- "aya-ebpf",
-]
-
-[[package]]
 name = "core-error"
 version = "0.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -348,7 +340,6 @@ dependencies = [
  "anyhow",
  "aya",
  "clap",
- "common",
  "env_logger",
  "log",
  "tokio",
@@ -361,7 +352,6 @@ version = "0.1.0"
 dependencies = [
  "aya-ebpf",
  "aya-log-ebpf",
- "common",
  "network-types",
  "which",
 ]
@@ -375,7 +365,6 @@ dependencies = [
  "aya-build",
  "aya-log",
  "clap",
- "common",
  "ebpf-filter",
  "env_logger",
  "libc",
