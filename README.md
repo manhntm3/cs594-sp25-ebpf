@@ -5,9 +5,12 @@ Final project of CS 594 taught by Prof. Wang at UIC
 
 Contributor: Dimitar Gjorgievski, Manh Nguyen
 
-EBPF network filtering
+# EBPF network filtering
 
-# xdp-filter
+- Insert domain names and block their IP addresses dynamically
+- Track for and prevent DDoS attacks 
+
+# ebpf-filter
 
 Run command:
 ```
@@ -22,13 +25,19 @@ RUST_LOG=info cargo run --config 'target."cfg(all())".runner="sudo -E"' -- \
 Dynamically add a website:
 
 ```
-RUST_LOG=info cargo run -p xdp-filter-dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com
+RUST_LOG=info cargo run -p dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com
 ```
 
 Dynamically remove a website:
 
 ```
-RUST_LOG=info cargo run -p xdp-filter-dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com --remove
+RUST_LOG=info cargo run -p dynamic --config 'target."cfg(all())".runner="sudo -E"' -- netflix.com --remove
+```
+Test DDoS attack
+
+```
+Set up server: python3 -m http.server
+Flood server: sudo hping3 -i u1000 -S -p <port_num> <IP_address>```
 ```
 
 ## Prerequisites
@@ -62,3 +71,4 @@ CC=${ARCH}-linux-musl-gcc cargo build --package xdp-filter --release \
 ```
 The cross-compiled program `target/${ARCH}-unknown-linux-musl/release/xdp-filter` can be
 copied to a Linux server or VM and run there.
+

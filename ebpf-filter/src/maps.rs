@@ -4,7 +4,7 @@ use aya_ebpf::programs::XdpContext;
 use aya_log_ebpf::info;
 use aya_ebpf::helpers::bpf_ktime_get_ns;
 
-const THERSHOLD: u32 = 2500;
+const THERSHOLD: u32 = 500;
 const WINDOW: u64 = 1000000000;
 
 
@@ -49,7 +49,7 @@ pub fn check_rate_limit_v4(ctx: &XdpContext ,ip: &u32)  {
             if bpf_ktime_get_ns() - (*rate_limit).last_update < WINDOW {
                 (*rate_limit).packet_count += 1;
                 if (*rate_limit).packet_count  > THERSHOLD {
-                    info!(ctx, "IP: {:i} IS ATTACKING TOTAL PACKETS: {} SINCE {}s AGO", *ip, (*rate_limit).packet_count, (bpf_ktime_get_ns() - (*rate_limit).last_update)/1000000000);
+                    info!(ctx, "IP: {:i} IS ATTACKING TOTAL PACKETS: {} SINCE {}ns AGO", *ip, (*rate_limit).packet_count, bpf_ktime_get_ns() - (*rate_limit).last_update);
                     BLOCKLIST_V4.insert(&ip, &0, 0).ok();
                 }
             } else {
@@ -69,7 +69,7 @@ pub fn check_rate_limit_v6(ctx: &XdpContext ,ip: &[u8; 16])  {
             if bpf_ktime_get_ns() - (*rate_limit).last_update < WINDOW {
                 (*rate_limit).packet_count += 1;
                 if (*rate_limit).packet_count  > THERSHOLD {
-                    info!(ctx, "IP: {:i} IS ATTACKING TOTAL PACKETS: {} SINCE {}s AGO", *ip, (*rate_limit).packet_count, (bpf_ktime_get_ns() - (*rate_limit).last_update)/1000000000);
+                    info!(ctx, "IP: {:i} IS ATTACKING TOTAL PACKETS: {} SINCE {}ns AGO", *ip, (*rate_limit).packet_count, bpf_ktime_get_ns() - (*rate_limit).last_update);
                     BLOCKLIST_V6.insert(&ip, &[0;16], 0).ok();
                 }
             } else {
