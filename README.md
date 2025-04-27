@@ -37,7 +37,7 @@ Test DDoS attack
 
 ```
 Set up server: python3 -m http.server
-Flood server: sudo hping3 -i u1000 -S -p <port_num> <IP_address>```
+Flood server: sudo hping3 -i u1000 -S -p <port_num> <IP_address>
 ```
 
 ## Prerequisites
