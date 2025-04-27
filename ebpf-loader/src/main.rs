@@ -1,5 +1,3 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
-
 use anyhow::Context;
 use aya::{
     maps::HashMap,
@@ -54,12 +52,12 @@ async fn main() -> Result<(), anyhow::Error> {
         TcAttachType::Egress
     )?;    
     
-    let mut v4_map: HashMap<_, u32, u32> =
+    let v4_map: HashMap<_, u32, u32> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST_V4").unwrap())?;
 
     v4_map.pin("/sys/fs/bpf/blocklist_v4")?;
 
-    let mut v6_map: HashMap<_, [u8; 16], [u8; 16]> =
+    let v6_map: HashMap<_, [u8; 16], [u8; 16]> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST_V6").unwrap())?;
 
     v6_map.pin("/sys/fs/bpf/blocklist_v6")?;
