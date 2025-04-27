@@ -1,10 +1,10 @@
 [package]
-name = "xdp-filter-ebpf"
+name = "ebpf-filter"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-xdp-filter-common = { path = "../xdp-filter-common" }
+common = { path = "../common" }
 aya-ebpf = { workspace = true }
 aya-log-ebpf = { workspace = true }
 network-types = "0.0.7"
@@ -13,5 +13,5 @@ network-types = "0.0.7"
 which = { workspace = true }
 
 [[bin]]
-name = "xdp-filter"
+name = "ebpf-loader"
 path = "src/main.rs"

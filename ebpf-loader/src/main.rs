@@ -27,7 +27,7 @@ async fn main() -> Result<(), anyhow::Error> {
     info!(env!("OUT_DIR"));
     let mut ebpf = aya::Ebpf::load(aya::include_bytes_aligned!(concat!(
         env!("OUT_DIR"),
-        "/xdp-filter"
+        "/ebpf-loader"
     )))?;
 
     let ebpf_ref = &mut ebpf;
@@ -57,45 +57,12 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut v4_map: HashMap<_, u32, u32> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST_V4").unwrap())?;
 
-    // let block_addr: u32 = Ipv4Addr::new(54, 237, 226, 164).into();
-    // v4_map.insert(block_addr, 0, 0)?;
-    // let block_addr: u32 = Ipv4Addr::new(52, 3, 144, 142).into();
-    // v4_map.insert(block_addr, 0, 0)?;
-    // let block_addr: u32 = Ipv4Addr::new(3, 230, 129, 93).into();
-    // v4_map.insert(block_addr, 0, 0)?;
-
     v4_map.pin("/sys/fs/bpf/blocklist_v4")?;
 
     let mut v6_map: HashMap<_, [u8; 16], [u8; 16]> =
         HashMap::try_from(ebpf.map_mut("BLOCKLIST_V6").unwrap())?;
 
-    // let block_addr: [u8; 16] = Ipv6Addr::new(
-    //     0x2600, 0x1f18, 0x631e, 0x2f85, 0x93a9, 0xf7b0, 0xd18, 0x89a7,
-    // )
-    // .octets();
-    // v6_map.insert(block_addr, [0; 16], 0)?;
-    // let block_addr: [u8; 16] = Ipv6Addr::new(
-    //     0x2600, 0x1f18, 0x631e, 0x2f84, 0x4f7a, 0x4092, 0xe2e9, 0xc617,
-    // )
-    // .octets();
-    // v6_map.insert(block_addr, [0; 16], 0)?;
-    // let block_addr: [u8; 16] = Ipv6Addr::new(
-    //     0x2600, 0x1f18, 0x631e, 0x2f83, 0x49ee, 0xbeaa, 0x2dfd, 0xae8f,
-    // )
-    // .octets();
-    // v6_map.insert(block_addr, [0; 16], 0)?;
-
     v6_map.pin("/sys/fs/bpf/blocklist_v6")?;
-
-    // println!("Reading blocklist.txt");
-    // let file = std::fs::File::open("xdp-filter/blocklist.txt")?;
-    // let reader = std::io::BufReader::new(file);
-    // for line in reader.lines() {
-    //     let line = line?;
-    //     let ip: Ipv4Addr = line.parse()?;
-    //     let ip = u32::from(ip);
-    //     blocklist.insert(ip, 0, 0)?;
-    // }
 
     let ctrl_c = signal::ctrl_c();
     info!("Waiting for Ctrl-C...");

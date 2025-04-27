@@ -1,5 +1,5 @@
 [package]
-name = "xdp-filter-dynamic"
+name = "dynamic"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,7 +7,7 @@ edition = "2021"
 aya = { workspace = true }
 anyhow = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
-xdp-filter-common = { path = "../xdp-filter-common", features = ["user"] }
+common = { path = "../common", features = ["user"] }
 trust-dns-resolver = "0.23" # Add for DNS resolution
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 log = { workspace = true }

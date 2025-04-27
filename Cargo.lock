@@ -299,6 +299,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "aya",
+ "aya-ebpf",
+]
+
+[[package]]
 name = "core-error"
 version = "0.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -331,6 +339,48 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "dynamic"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aya",
+ "clap",
+ "common",
+ "env_logger",
+ "log",
+ "tokio",
+ "trust-dns-resolver",
+]
+
+[[package]]
+name = "ebpf-filter"
+version = "0.1.0"
+dependencies = [
+ "aya-ebpf",
+ "aya-log-ebpf",
+ "common",
+ "network-types",
+ "which",
+]
+
+[[package]]
+name = "ebpf-loader"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aya",
+ "aya-build",
+ "aya-log",
+ "clap",
+ "common",
+ "ebpf-filter",
+ "env_logger",
+ "libc",
+ "log",
+ "tokio",
 ]
 
 [[package]]
@@ -1514,56 +1564,6 @@ name = "writeable"
 version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e9df38ee2d2c3c5948ea468a8406ff0db0b29ae1ffde1bcf20ef305bcc95c51"
-
-[[package]]
-name = "xdp-filter"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "aya",
- "aya-build",
- "aya-log",
- "clap",
- "env_logger",
- "libc",
- "log",
- "tokio",
- "xdp-filter-common",
- "xdp-filter-ebpf",
-]
-
-[[package]]
-name = "xdp-filter-common"
-version = "0.1.0"
-dependencies = [
- "aya",
- "aya-ebpf",
-]
-
-[[package]]
-name = "xdp-filter-dynamic"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "aya",
- "clap",
- "env_logger",
- "log",
- "tokio",
- "trust-dns-resolver",
- "xdp-filter-common",
-]
-
-[[package]]
-name = "xdp-filter-ebpf"
-version = "0.1.0"
-dependencies = [
- "aya-ebpf",
- "aya-log-ebpf",
- "network-types",
- "which",
- "xdp-filter-common",
-]
 
 [[package]]
 name = "yoke"

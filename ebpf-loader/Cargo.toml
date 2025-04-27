@@ -1,10 +1,10 @@
 [package]
-name = "xdp-filter"
+name = "ebpf-loader"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-xdp-filter-common = { path = "../xdp-filter-common", features = ["user"] }
+common = { path = "../common", features = ["user"] }
 
 anyhow = { workspace = true, default-features = true }
 aya = { workspace = true }
@@ -30,8 +30,8 @@ aya-build = { workspace = true }
 # Finally note that *any* usage of `artifact = ...` in *any* Cargo.toml in the workspace breaks
 # workflows with stable cargo; stable cargo outright refuses to load manifests that use unstable
 # features.
-xdp-filter-ebpf = { path = "../xdp-filter-ebpf" }
+ebpf-filter = { path = "../ebpf-filter" }
 
 [[bin]]
-name = "xdp-filter"
+name = "ebpf-loader"
 path = "src/main.rs"
